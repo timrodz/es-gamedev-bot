@@ -14,16 +14,18 @@ class RetweetStreamListener(StreamListener):
 
         # Ignore tweet if it's either mine or a reply
         if tweet.in_reply_to_status_id is not None or tweet.user.id == self.me.id:
+            logger.info(f'Ignored: {tweet.id}: Either a reply or mine')
             return
 
-        # Like
-        if not tweet.favorited:
-            try:
-                tweet.favorite()
-                logger.info(f'Liked: {tweet.id}')
-            except Exception as e:
-                logger.error(f'Error on like: {e}', exc_info=True)
-        # Retweet
+        try:
+            retweeted_status = tweet.retweeted_status
+            if retweeted_status:
+                logger.info(f'Ignored: {tweet.id}: Quote retweet')
+                return
+        except AttributeError:
+            # No quote retweet found, continue as expected
+            logger.debug(f'Not a quote retweet: {tweet.id}')
+
         if not tweet.retweeted:
             try:
                 tweet.retweet()
