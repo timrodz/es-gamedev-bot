@@ -9,22 +9,30 @@ logger = logging.getLogger()
 
 
 class RetweetStreamListener(StreamListener):
+    def can_interact_with_tweet(self, tweet) -> bool:
+        # Ignore tweet if it's either mine or a reply
+        if tweet.user.id == self.me.id:
+            logger.info(f'Skipping tweet: {tweet.id} (mine or reply to me)')
+            return False
+        
+        # Ignore tweet if it's a quote retweet
+        if tweet.is_quote_status:
+            logger.info(f'Skipping tweet: {tweet.id} (quoted status)')
+            return False
+        
+        try:
+            # Ignore tweet if it's a retweet
+            retweet = tweet.retweeted_status
+            logger.info(f'Skipping tweet: {retweet.id} (retweeted)')
+            return False
+        except Exception:
+            return True
+            
     def on_status(self, tweet):
         logger.info(f'Processing tweet id {tweet.id}')
-
-        # Ignore tweet if it's either mine or a reply
-        if tweet.in_reply_to_status_id is not None or tweet.user.id == self.me.id:
-            logger.info(f'Ignored: {tweet.id}: Either a reply or mine')
+        
+        if not self.can_interact_with_tweet(tweet):
             return
-
-        try:
-            retweeted_status = tweet.retweeted_status
-            if retweeted_status:
-                logger.info(f'Ignored: {tweet.id}: Quote retweet')
-                return
-        except AttributeError:
-            # No quote retweet found, continue as expected
-            logger.debug(f'Not a quote retweet: {tweet.id}')
 
         if not tweet.retweeted:
             try:
