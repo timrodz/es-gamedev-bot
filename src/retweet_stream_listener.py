@@ -19,6 +19,11 @@ class RetweetStreamListener(StreamListener):
         if tweet.is_quote_status:
             logger.info(f'Skipping tweet: {tweet.id} (quoted status)')
             return False
+
+        # Ignore tweet if it has no likes
+        if tweet.favorite_count < 1:
+            logger.info(f'Skipping tweet: {tweet.id} (no likes)')
+            return False
         
         try:
             # Ignore tweet if it's a retweet
