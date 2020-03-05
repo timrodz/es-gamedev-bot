@@ -34,5 +34,5 @@ ACCESS_TOKEN_SECRET = ''
 - Run the bot.
 
 ```shell
-python main.py
+$ python main.py
 ```
