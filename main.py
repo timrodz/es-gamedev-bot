@@ -6,7 +6,6 @@ if __name__ == '__main__':
     keywords = [
         '#gamedev',
         '#indiedev',
-        '#unity',
         '#madewithunity',
         '#UE4',
         '#gamedev español',
