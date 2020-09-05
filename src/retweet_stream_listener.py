@@ -15,6 +15,13 @@ class RetweetStreamListener(StreamListener):
             logger.info(f'Skipping tweet: {tweet.id} (mine or reply to me)')
             return False
         
+        try:
+            if tweet.possibly_sensitive:
+                logger.info(f'Skipping tweet: {tweet.id} (possibly sensitive)')
+                return False
+        except:
+            pass
+
         # Ignore tweet if it's a quote retweet
         if tweet.is_quote_status:
             logger.info(f'Skipping tweet: {tweet.id} (quoted status)')
