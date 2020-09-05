@@ -2,6 +2,8 @@
 
 A bot that celebrates and promotes game development written in Spanish.
 
+Inspired by [this Real Python post](https://realpython.com/twitter-bot-python-tweepy).
+
 ## Links
 
 - [Twitter Account](https://twitter.com/EsGamedevBot).
