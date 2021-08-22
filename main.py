@@ -13,6 +13,7 @@ if __name__ == '__main__':
 
     languages = ['es']
 
-    api = twitter_api.get_api()
+    cfg = Config()
+    api = twitter_api.get_api(config=cfg)
     stream_listener = retweet_stream_listener.RetweetStreamListener(api)
     stream_listener.stream_tweets_from_keywords(keywords, languages)

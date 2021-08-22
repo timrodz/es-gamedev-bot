@@ -35,6 +35,6 @@ class StreamListener(tweepy.StreamListener):
 
 if __name__ == '__main__':
     cfg = Config()
-    test_api = get_api(cfg)
+    test_api = get_api(config=cfg)
     test_listener = StreamListener(test_api)
     test_listener.stream_tweets_from_keywords(['Python', 'Tweepy'])
