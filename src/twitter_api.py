@@ -8,15 +8,15 @@ from config import Config
 logger = logging.getLogger()
 
 
-def get_api(cfg: Config = None):
+def get_api(*, config: Config = None):
     auth = tweepy.OAuthHandler(
-        cfg.API_KEY if cfg else os.getenv('API_KEY'),
-        cfg.API_SECRET_KEY if cfg else os.getenv('API_SECRET_KEY')
+        config.API_KEY if config else os.getenv('API_KEY'),
+        config.API_SECRET_KEY if config else os.getenv('API_SECRET_KEY')
     )
 
     auth.set_access_token(
-        cfg.ACCESS_TOKEN if cfg else os.getenv('ACCESS_TOKEN'),
-        cfg.ACCESS_TOKEN_SECRET if cfg else os.getenv('ACCESS_TOKEN_SECRET')
+        config.ACCESS_TOKEN if config else os.getenv('ACCESS_TOKEN'),
+        config.ACCESS_TOKEN_SECRET if config else os.getenv('ACCESS_TOKEN_SECRET')
     )
 
     api = tweepy.API(
@@ -35,6 +35,7 @@ def get_api(cfg: Config = None):
 
 
 def query_tweets(
+        *,
         api: tweepy.API,
         query: str,
         lang: str = 'en',
@@ -66,7 +67,8 @@ def query_tweets(
 
 
 if __name__ == '__main__':
-    test_api = get_api()
+    cfg = Config()
+    test_api = get_api(config=cfg)
 
     # Get user data
     user = test_api.get_user('ninja')
@@ -87,8 +89,8 @@ if __name__ == '__main__':
 
     # Query random data
     tweets = query_tweets(
-        test_api,
-        '#gamedev',
+        api=test_api,
+        query='#gamedev',
         lang='es',
         count=10,
         result_type='mixed'
