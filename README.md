@@ -14,6 +14,11 @@ Inspired by [this Real Python post](https://realpython.com/twitter-bot-python-tw
 - Create a virtual environment.
 
 ```shell
+pip install virtualenv
+virtualenv -p python3 venv
+```
+
+```shell
 $ venv
 $ source venv/bin/activate
 ```
@@ -24,9 +29,9 @@ $ source venv/bin/activate
 $ pip install -r requirements.txt
 ```
 
-- Set up your [Twitter OAuth](https://developer.twitter.com/en/docs/basics/authentication/overview) keys on `config.py`.
+- Set up your [Twitter OAuth](https://developer.twitter.com/en/docs/basics/authentication/overview) keys on your environment (`.env`)
 
-```python
+```shell
 API_KEY = ''
 API_SECRET_KEY = ''
 ACCESS_TOKEN = ''
