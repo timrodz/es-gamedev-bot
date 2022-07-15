@@ -44,11 +44,6 @@ class RetweetStreamListener(tweepy.Stream):
         )
 
     def can_interact_with_tweet(self, tweet) -> bool:
-        # Ignore tweet if it's either mine or a reply
-        if tweet.user.id == self.me.id:
-            logger.info(f"Skipping tweet: {tweet.id} (mine or reply to me)")
-            return False
-
         try:
             if tweet.possibly_sensitive:
                 logger.info(f"Skipping tweet: {tweet.id} (possibly sensitive)")
@@ -91,13 +86,17 @@ if __name__ == "__main__":
         "#gamedev español",
     ]
 
-    languages = ["en"]
+    languages = ["es"]
+
+    consumer_key = os.getenv("API_KEY")
+    consumer_secret = os.getenv("API_SECRET_KEY")
+    access_token = os.getenv("ACCESS_TOKEN")
+    access_token_secret = os.getenv("ACCESS_TOKEN_SECRET")
 
     stream_listener = RetweetStreamListener(
-        os.getenv("API_KEY"),
-        os.getenv("API_SECRET_KEY"),
-        os.getenv("ACCESS_TOKEN"),
-        os.getenv("ACCESS_TOKEN_SECRET"),
+        consumer_key,
+        consumer_secret,
+        access_token,
+        access_token_secret,
     )
-    stream_listener.filter(
-        track=keywords, languages=languages, filter_level="low")
+    stream_listener.filter(track=keywords, languages=languages, filter_level="low")
