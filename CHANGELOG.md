@@ -1,6 +1,10 @@
 # Change Log
 
-All notable changes to the "light-switch" extension will be documented in this file.
+## [0.2.0]
+
+- Brought the bot back to life by updating all Twitter API dependencies (that have now changed) along with Tweepy.
+- Updated the Heroku buildpack + dependency configs
+- Re-generated the OAuth keys
 
 ## [0.1.0]
 

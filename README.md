@@ -16,30 +16,26 @@ Inspired by [this Real Python post](https://realpython.com/twitter-bot-python-tw
 ```shell
 pip install virtualenv
 virtualenv -p python3 venv
+source venv/bin/activate
 ```
 
+- Install project dependencies.
+
 ```shell
-$ venv
-$ source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-- Install the package dependencies.
+- Generate [Twitter OAuth](https://developer.twitter.com/en/docs/basics/authentication/overview) keys, and save them to an `.env` file:
 
 ```shell
-$ pip install -r requirements.txt
-```
-
-- Set up your [Twitter OAuth](https://developer.twitter.com/en/docs/basics/authentication/overview) keys on your environment (`.env`)
-
-```shell
-API_KEY = ''
-API_SECRET_KEY = ''
-ACCESS_TOKEN = ''
-ACCESS_TOKEN_SECRET = ''
+API_KEY
+API_SECRET_KEY
+ACCESS_TOKEN
+ACCESS_TOKEN_SECRET
 ```
 
 - Run the bot.
 
 ```shell
-$ python main.py
+python main.py
 ```
