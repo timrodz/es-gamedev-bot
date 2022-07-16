@@ -32,5 +32,4 @@ if __name__ == "__main__":
         access_token,
         access_token_secret,
     )
-    stream.filter(
-        track=keywords, languages=languages, filter_level="low")
+    stream.filter(track=keywords, languages=languages, filter_level="medium")

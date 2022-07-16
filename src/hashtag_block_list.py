@@ -6,6 +6,4 @@ If it only contains an "N", we do not watch to block it because that doesn't mat
 """
 import typing
 
-from src import util
-
-hashtag_block_list: typing.List[str] = util.to_upper(["NFT"])
+block_list: typing.List[str] = ["NFT"]

@@ -3,7 +3,7 @@ import typing
 
 import tweepy
 
-from src import hashtag_block_list
+from src.hashtag_block_list import block_list
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
@@ -23,7 +23,7 @@ class Stream(tweepy.Stream):
 
         self.api = tweepy.API(auth)
 
-    def on_status(self, status):
+    def on_status(self, status: tweepy.Tweet):
         # https://docs.tweepy.org/en/stable/v1_models.html#tweepy.models.Status
         logger.info(f"Processing tweet id {status.id}")
 
@@ -32,46 +32,41 @@ class Stream(tweepy.Stream):
 
         if not status.retweeted:
             try:
-                self.api.retweet(id)
+                self.api.retweet(status.id)
                 logger.info(f"Retweeted: {status.id}")
             except Exception as e:
                 logger.error(f"Error on retweet: {e}", exc_info=True)
 
     def _can_interact_with_tweet(self, tweet: tweepy.Tweet) -> bool:
-        if tweet.possibly_sensitive is not None and tweet.possibly_sensitive is True:
+        if hasattr(tweet, "possibly_sensitive") and tweet.possibly_sensitive is True:
             logger.info(f"Skipping tweet: {tweet.id} (possibly sensitive)")
             return False
 
-        try:
+        if hasattr(tweet, "extended_tweet"):
             # Some tweets contain data in the form of an "extended tweet"
             # source: https://docs.tweepy.org/en/stable/extended_tweets.html
-            et = tweet.extended_tweet
-            if self._tweet_contains_blocked_hashtag(et["entities"]["hashtags"]):
-                return False
-        except:
-            # Tweet is compatibility mode, extract data in another way
-            if self._tweet_contains_blocked_hashtag(tweet.entities["hashtags"]):
+            if self._tweet_contains_blocked_hashtag(
+                tweet.extended_tweet["entities"]["hashtags"]
+            ):
+                logger.info(f"Tweet {tweet.id} contains blocked hashtags")
                 return False
 
-        # Ignore tweet if it's a quote retweet
+        if hasattr(tweet, "retweeted_status"):
+            logger.warn(f"Skipping tweet: {tweet.id} (retweeted)")
+            return False
+
         if tweet.is_quote_status:
-            logger.info(f"Skipping tweet: {tweet.id} (quoted status)")
+            logger.warn(f"Skipping tweet: {tweet.id} (quoted status)")
             return False
 
-        try:
-            # Ignore tweet if it's a retweet
-            retweet = tweet.retweeted_status
-            logger.info(f"Skipping tweet: {retweet.id} (retweeted)")
-            return False
-        except Exception:
-            return True
+        return True
 
     def _tweet_contains_blocked_hashtag(
         self, hashtags: typing.List[typing.Dict[str, str]]
     ) -> bool:
+        if not hashtags:
+            return False
         _hashtag_list: typing.List[str] = [
             hashtag["text"].upper() for hashtag in hashtags
         ]
-        return any(
-            h for h in _hashtag_list if any(bh in h for bh in hashtag_block_list)
-        )
+        return any(h for h in _hashtag_list if any(bh in h for bh in block_list))
