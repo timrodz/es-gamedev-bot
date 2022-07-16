@@ -27,10 +27,14 @@ if __name__ == "__main__":
     access_token_secret = os.getenv("ACCESS_TOKEN_SECRET")
     filter_level = os.getenv("FILTER_LEVEL", None)
 
+    logger.info("Initializing Stream")
     stream = Stream(
         consumer_key,
         consumer_secret,
         access_token,
         access_token_secret,
+    )
+    logger.info(
+        f"Starting stream with the following settings: Keywords: {', '.join(keywords)}; Languages: {', '.join(languages)}; Filter level: {filter_level}"
     )
     stream.filter(track=keywords, languages=languages, filter_level=filter_level)
