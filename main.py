@@ -25,6 +25,7 @@ if __name__ == "__main__":
     consumer_secret = os.getenv("API_SECRET_KEY")
     access_token = os.getenv("ACCESS_TOKEN")
     access_token_secret = os.getenv("ACCESS_TOKEN_SECRET")
+    filter_level = os.getenv("FILTER_LEVEL", "medium")
 
     stream = Stream(
         consumer_key,
@@ -32,4 +33,4 @@ if __name__ == "__main__":
         access_token,
         access_token_secret,
     )
-    stream.filter(track=keywords, languages=languages, filter_level="medium")
+    stream.filter(track=keywords, languages=languages, filter_level=filter_level)
