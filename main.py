@@ -25,7 +25,7 @@ if __name__ == "__main__":
     consumer_secret = os.getenv("API_SECRET_KEY")
     access_token = os.getenv("ACCESS_TOKEN")
     access_token_secret = os.getenv("ACCESS_TOKEN_SECRET")
-    filter_level = os.getenv("FILTER_LEVEL", "medium")
+    filter_level = os.getenv("FILTER_LEVEL", None)
 
     stream = Stream(
         consumer_key,
