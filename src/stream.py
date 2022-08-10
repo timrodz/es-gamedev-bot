@@ -86,6 +86,7 @@ class Stream(tweepy.Stream):
             return False
 
         _url_list: typing.List[str] = [url["expanded_url"].upper() for url in urls]
+        log.debug("Check for blocked URLs", hashtags=_url_list)
         return any(
             url for url in _url_list if any(key in url for key in keyword_block_list)
         )
@@ -99,6 +100,7 @@ class Stream(tweepy.Stream):
         _hashtag_list: typing.List[str] = [
             hashtag["text"].upper() for hashtag in hashtags
         ]
+        log.debug("Check for blocked hashtags", hashtags=_hashtag_list)
         return any(
             hashtag
             for hashtag in _hashtag_list
