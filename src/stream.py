@@ -3,7 +3,8 @@ import typing
 
 import tweepy
 
-from src.hashtag_block_list import block_list
+from src.hashtag_block_list import block_list as hashtag_block_list
+from src.word_block_list import block_list as keyword_block_list
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
@@ -33,7 +34,8 @@ class Stream(tweepy.Stream):
         if not status.retweeted:
             try:
                 self.api.retweet(status.id)
-                logger.info(f"Retweeted: {status.id}")
+                logger.info(
+                    f"Retweeted {status.id} with source {status.source}")
             except Exception as e:
                 logger.error(f"Error on retweet: {e}", exc_info=True)
 
@@ -45,7 +47,7 @@ class Stream(tweepy.Stream):
         if hasattr(tweet, "extended_tweet"):
             # Some tweets contain data in the form of an "extended tweet"
             # source: https://docs.tweepy.org/en/stable/extended_tweets.html
-            if self._tweet_contains_blocked_hashtag(
+            if self._tweet_contains_blocked_hashtags(
                 tweet.extended_tweet["entities"]["hashtags"]
             ):
                 logger.info(f"Tweet {tweet.id} contains blocked hashtags")
@@ -59,9 +61,18 @@ class Stream(tweepy.Stream):
             logger.warn(f"Skipping tweet: {tweet.id} (quoted status)")
             return False
 
+        if self._tweet_contains_blocked_keywords(tweet.text):
+            logger.info(f"Tweet {tweet.id} contains blocked keywords")
+            return False
+
         return True
 
-    def _tweet_contains_blocked_hashtag(
+    def _tweet_contains_blocked_keywords(
+        self, text: str
+    ) -> bool:
+        return any(keyword in text.upper() for keyword in keyword_block_list)
+
+    def _tweet_contains_blocked_hashtags(
         self, hashtags: typing.List[typing.Dict[str, str]]
     ) -> bool:
         if not hashtags:
@@ -69,4 +80,4 @@ class Stream(tweepy.Stream):
         _hashtag_list: typing.List[str] = [
             hashtag["text"].upper() for hashtag in hashtags
         ]
-        return any(h for h in _hashtag_list if any(bh in h for bh in block_list))
+        return any(h for h in _hashtag_list if any(bh in h for bh in hashtag_block_list))
