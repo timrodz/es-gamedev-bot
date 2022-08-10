@@ -11,6 +11,7 @@ logger = logging.getLogger()
 
 
 if __name__ == "__main__":
+    return
     keywords = [
         "#gamedev",
         "#indiedev",
@@ -37,4 +38,5 @@ if __name__ == "__main__":
     logger.info(
         f"Starting stream with the following settings: Keywords: {', '.join(keywords)}; Languages: {', '.join(languages)}; Filter level: {filter_level}"
     )
-    stream.filter(track=keywords, languages=languages, filter_level=filter_level)
+    stream.filter(track=keywords, languages=languages,
+                  filter_level=filter_level)
