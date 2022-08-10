@@ -67,6 +67,7 @@ class Stream(tweepy.Stream):
         return True
 
     def _tweet_contains_blocked_keywords(self, text: str) -> bool:
+        logger.info(f"checking tweet text: {text.upper()}")
         return any(keyword in text.upper() for keyword in keyword_block_list)
 
     def _tweet_contains_blocked_hashtags(
