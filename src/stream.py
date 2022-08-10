@@ -88,11 +88,11 @@ class Stream(tweepy.Stream):
             return False
 
         _url_list: typing.List[str] = [url["expanded_url"].upper() for url in urls]
-        log.debug("Check for blocked URLs", urls=_url_list)
+        log.debug("Check for blocked URLs", id=id, urls=_url_list)
 
         # Make a temporary blocklist that checks to see if the same ID of the tweet is in the URL
         # This is an obfuscation other bots use to hide their links. Clever, but not that clever ;)
-        temp_block_list: typing.List[str] = keyword_block_list + [str(id)]
+        temp_block_list: typing.List[str] = keyword_block_list
 
         return any(
             url for url in _url_list if any(key in url for key in temp_block_list)
