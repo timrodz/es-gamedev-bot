@@ -54,7 +54,9 @@ class Stream(tweepy.Stream):
         if hasattr(tweet, "entities"):
             # Some tweets contain data in the form of an "extended tweet"
             # source: https://docs.tweepy.org/en/stable/extended_tweets.html
-            if self._tweet_urls_contain_blocked_keywords(tweet.entities["urls"]):
+            if self._tweet_urls_contain_blocked_keywords(
+                tweet.id, tweet.entities["urls"]
+            ):
                 log.info("Ignore tweet", reason="URLs contain blocked keywords")
                 return False
 
@@ -80,15 +82,20 @@ class Stream(tweepy.Stream):
         return any(keyword in text.upper() for keyword in keyword_block_list)
 
     def _tweet_urls_contain_blocked_keywords(
-        self, urls: typing.List[typing.Dict[str, str]]
+        self, id: str, urls: typing.List[typing.Dict[str, str]]
     ) -> bool:
         if not urls:
             return False
 
         _url_list: typing.List[str] = [url["expanded_url"].upper() for url in urls]
         log.debug("Check for blocked URLs", urls=_url_list)
+
+        # Make a temporary blocklist that checks to see if the same ID of the tweet is in the URL
+        # This is an obfuscation other bots use to hide their links. Clever, but not that clever ;)
+        temp_block_list: typing.List[str] = keyword_block_list + [id]
+
         return any(
-            url for url in _url_list if any(key in url for key in keyword_block_list)
+            url for url in _url_list if any(key in url for key in temp_block_list)
         )
 
     def _tweet_contains_blocked_hashtags(
