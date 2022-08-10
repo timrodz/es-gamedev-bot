@@ -33,7 +33,10 @@ if __name__ == "__main__":
         access_token,
         access_token_secret,
     )
-    log.info("Starting stream", keywords={', '.join(keywords)},
-             languages={', '.join(languages)}, filter_level=filter_level)
-    stream.filter(track=keywords, languages=languages,
-                  filter_level=filter_level)
+    log.info(
+        "Starting stream",
+        keywords={", ".join(keywords)},
+        languages={", ".join(languages)},
+        filter_level=filter_level,
+    )
+    stream.filter(track=keywords, languages=languages, filter_level=filter_level)
