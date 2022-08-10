@@ -25,7 +25,12 @@ class Stream(tweepy.Stream):
 
     def on_status(self, status: tweepy.Tweet):
         # https://docs.tweepy.org/en/stable/v1_models.html#tweepy.models.Status
-        log.info("Processing tweet", id=status.id, created_at=status.created_at)
+        log.info(
+            "Processing tweet",
+            id=status.id,
+            created_at=status.created_at,
+            entities=status.entities if hasattr(status, "entities") else None,
+        )
 
         if not self._can_interact_with_tweet(status):
             return
