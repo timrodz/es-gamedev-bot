@@ -1,13 +1,12 @@
-import logging
 import typing
 
+from structlog import get_logger
 import tweepy
 
 from src.hashtag_block_list import block_list as hashtag_block_list
-from src.word_block_list import block_list as keyword_block_list
+from src.keyword_block_list import block_list as keyword_block_list
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger()
+log = get_logger()
 
 
 class Stream(tweepy.Stream):
@@ -26,58 +25,85 @@ class Stream(tweepy.Stream):
 
     def on_status(self, status: tweepy.Tweet):
         # https://docs.tweepy.org/en/stable/v1_models.html#tweepy.models.Status
-        logger.info(f"Processing tweet id {status.id}")
+        log.info(
+            "Processing tweet",
+            id=status.id,
+            created_at=status.created_at
+        )
 
         if not self._can_interact_with_tweet(status):
             return
 
         if not status.retweeted:
             try:
+                log.info("Retweet", id=status.id)
                 self.api.retweet(status.id)
-                logger.info(f"Retweeted {status.id} with source {status.source}")
             except Exception as e:
-                logger.error(f"Error on retweet: {e}", exc_info=True)
+                log.error("Error on retweet", exc_info=e)
 
     def _can_interact_with_tweet(self, tweet: tweepy.Tweet) -> bool:
-        if hasattr(tweet, "possibly_sensitive") and tweet.possibly_sensitive is True:
-            logger.info(f"Skipping tweet: {tweet.id} (possibly sensitive)")
+        if hasattr(tweet, "reply_settings") and "everyone" not in tweet.reply_settings:
+            log.info("Ignore tweet",
+                     reason="user does not allow 'everyone' to reply")
             return False
 
-        if hasattr(tweet, "extended_tweet"):
+        if hasattr(tweet, "possibly_sensitive") and tweet.possibly_sensitive is True:
+            log.info("Ignore tweet", reason="possibly sensitive")
+            return False
+
+        if hasattr(tweet, "entities"):
             # Some tweets contain data in the form of an "extended tweet"
             # source: https://docs.tweepy.org/en/stable/extended_tweets.html
-            if self._tweet_contains_blocked_hashtags(
-                tweet.extended_tweet["entities"]["hashtags"]
+            if self._tweet_urls_contain_blocked_keywords(
+                tweet.entities["urls"]
             ):
-                logger.info(f"Tweet {tweet.id} contains blocked hashtags")
+                log.info("Ignore tweet", reason="URLs contain blocked keywords")
+                return False
+
+            if self._tweet_contains_blocked_hashtags(
+                tweet.entities["hashtags"]
+            ):
+                log.info("Ignore tweet", reason="contains blocked hashtags")
                 return False
 
         if hasattr(tweet, "retweeted_status"):
-            logger.warn(f"Skipping tweet: {tweet.id} (retweeted)")
+            log.warn("Ignore tweet", reason="retweeted")
             return False
 
         if tweet.is_quote_status:
-            logger.warn(f"Skipping tweet: {tweet.id} (quoted status)")
+            log.warn("Ignore tweet", reason="quoted status")
             return False
 
         if self._tweet_contains_blocked_keywords(tweet.text):
-            logger.info(f"Tweet {tweet.id} contains blocked keywords")
+            log.info("Ignore tweet", reason="contains blocked keywords")
             return False
 
         return True
 
     def _tweet_contains_blocked_keywords(self, text: str) -> bool:
-        logger.info(f"checking tweet text: {text.upper()}")
         return any(keyword in text.upper() for keyword in keyword_block_list)
+
+    def _tweet_urls_contain_blocked_keywords(
+        self, urls: typing.List[typing.Dict[str, str]]
+    ) -> bool:
+        if not urls:
+            return False
+
+        _url_list: typing.List[str] = [
+            url["expanded_url"].upper() for url in urls]
+        return any(
+            url for url in _url_list if any(key in url for key in keyword_block_list)
+        )
 
     def _tweet_contains_blocked_hashtags(
         self, hashtags: typing.List[typing.Dict[str, str]]
     ) -> bool:
         if not hashtags:
             return False
+
         _hashtag_list: typing.List[str] = [
             hashtag["text"].upper() for hashtag in hashtags
         ]
         return any(
-            h for h in _hashtag_list if any(bh in h for bh in hashtag_block_list)
+            hashtag for hashtag in _hashtag_list if any(key in hashtag for key in hashtag_block_list)
         )

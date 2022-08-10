@@ -1,17 +1,15 @@
-import logging
 import os
 
 from dotenv import load_dotenv
+from structlog import get_logger
 
 from src.stream import Stream
 
 load_dotenv()
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger()
+log = get_logger()
 
 
 if __name__ == "__main__":
-    return
     keywords = [
         "#gamedev",
         "#indiedev",
@@ -28,15 +26,14 @@ if __name__ == "__main__":
     access_token_secret = os.getenv("ACCESS_TOKEN_SECRET")
     filter_level = os.getenv("FILTER_LEVEL", None)
 
-    logger.info("Initializing Stream")
+    log.info("Initializing stream")
     stream = Stream(
         consumer_key,
         consumer_secret,
         access_token,
         access_token_secret,
     )
-    logger.info(
-        f"Starting stream with the following settings: Keywords: {', '.join(keywords)}; Languages: {', '.join(languages)}; Filter level: {filter_level}"
-    )
+    log.info("Starting stream", keywords={', '.join(keywords)},
+             languages={', '.join(languages)}, filter_level=filter_level)
     stream.filter(track=keywords, languages=languages,
                   filter_level=filter_level)
