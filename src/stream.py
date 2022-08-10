@@ -82,7 +82,7 @@ class Stream(tweepy.Stream):
         return any(keyword in text.upper() for keyword in keyword_block_list)
 
     def _tweet_urls_contain_blocked_keywords(
-        self, id: str, urls: typing.List[typing.Dict[str, str]]
+        self, id: int, urls: typing.List[typing.Dict[str, str]]
     ) -> bool:
         if not urls:
             return False
@@ -92,7 +92,7 @@ class Stream(tweepy.Stream):
 
         # Make a temporary blocklist that checks to see if the same ID of the tweet is in the URL
         # This is an obfuscation other bots use to hide their links. Clever, but not that clever ;)
-        temp_block_list: typing.List[str] = keyword_block_list + [id]
+        temp_block_list: typing.List[str] = keyword_block_list + [str(id)]
 
         return any(
             url for url in _url_list if any(key in url for key in temp_block_list)
