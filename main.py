@@ -1,4 +1,5 @@
 import os
+import sys
 
 from dotenv import load_dotenv
 from structlog import get_logger
@@ -25,6 +26,11 @@ if __name__ == "__main__":
     access_token = os.getenv("ACCESS_TOKEN")
     access_token_secret = os.getenv("ACCESS_TOKEN_SECRET")
     filter_level = os.getenv("FILTER_LEVEL", None)
+    pause_mode = os.getenv("PAUSE_MODE", False)
+
+    if pause_mode:
+        log.info("Pause mode enabled, exiting")
+        sys.exit()
 
     log.info("Initializing stream")
     stream = Stream(
@@ -39,4 +45,5 @@ if __name__ == "__main__":
         languages=languages,
         filter_level=filter_level,
     )
-    stream.filter(track=keywords, languages=languages, filter_level=filter_level)
+    stream.filter(track=keywords, languages=languages,
+                  filter_level=filter_level)
