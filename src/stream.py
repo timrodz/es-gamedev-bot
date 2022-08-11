@@ -1,8 +1,9 @@
 import typing
 
-from structlog import get_logger
 import tweepy
+from structlog import get_logger
 
+from src.api import get_api
 from src.hashtag_block_list import block_list as hashtag_block_list
 from src.keyword_block_list import block_list as keyword_block_list
 
@@ -16,12 +17,10 @@ class Stream(tweepy.Stream):
         super().__init__(
             consumer_key, consumer_secret, access_token, access_token_secret, **kwargs
         )
-        # Initialises an instance of the Twitter API in order to have all the functionality available
-        auth = tweepy.OAuth1UserHandler(
+
+        self.api = get_api(
             consumer_key, consumer_secret, access_token, access_token_secret
         )
-
-        self.api = tweepy.API(auth)
 
     def on_status(self, status: tweepy.Tweet):
         # https://docs.tweepy.org/en/stable/v1_models.html#tweepy.models.Status

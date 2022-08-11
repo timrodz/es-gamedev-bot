@@ -35,8 +35,8 @@ if __name__ == "__main__":
     )
     log.info(
         "Starting stream",
-        keywords={", ".join(keywords)},
-        languages={", ".join(languages)},
+        keywords=keywords,
+        languages=languages,
         filter_level=filter_level,
     )
     stream.filter(track=keywords, languages=languages, filter_level=filter_level)
